@@ -1,0 +1,211 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == "hasnat.khan8238@gmail.com" ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isValidUserProfile(data) {
+      return data.uid is string && data.uid.size() >= 1 && data.uid.size() <= 128 &&
+             data.displayName is string && data.displayName.size() >= 1 && data.displayName.size() <= 100 &&
+             data.email is string && data.email.size() >= 3 && data.email.size() <= 128 &&
+             (!('phone' in data) || data.phone == null || (data.phone is string && data.phone.size() <= 50)) &&
+             data.role in ['customer', 'admin'] &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             (!('updatedAt' in data) || data.updatedAt == null || (data.updatedAt is timestamp && data.updatedAt <= request.time));
+    }
+
+    function isValidService(data) {
+      return data.serviceId is string && data.serviceId.size() >= 1 && data.serviceId.size() <= 100 &&
+             data.title is string && data.title.size() >= 2 && data.title.size() <= 150 &&
+             data.category is string && data.category.size() >= 2 && data.category.size() <= 100 &&
+             data.startingPrice is number && data.startingPrice >= 0 &&
+             data.isActive is bool &&
+             (!('description' in data) || data.description == null || (data.description is string && data.description.size() <= 2000)) &&
+             (!('deliveryTime' in data) || data.deliveryTime == null || (data.deliveryTime is string && data.deliveryTime.size() <= 100)) &&
+             (!('iconName' in data) || data.iconName == null || (data.iconName is string && data.iconName.size() <= 50)) &&
+             (!('isFeatured' in data) || data.isFeatured is bool) &&
+             (!('packages' in data) || data.packages is map);
+    }
+
+    function isValidBooking(data) {
+      return data.bookingId is string && data.bookingId.size() >= 1 && data.bookingId.size() <= 128 &&
+             data.bookingReference is string && data.bookingReference.size() >= 3 && data.bookingReference.size() <= 50 &&
+             data.customerId is string && data.customerId.size() >= 1 && data.customerId.size() <= 128 &&
+             data.customerName is string && data.customerName.size() >= 1 && data.customerName.size() <= 100 &&
+             data.customerPhone is string && data.customerPhone.size() >= 3 && data.customerPhone.size() <= 50 &&
+             data.serviceId is string && data.serviceId.size() >= 1 && data.serviceId.size() <= 100 &&
+             data.serviceTitle is string && data.serviceTitle.size() >= 1 && data.serviceTitle.size() <= 150 &&
+             data.projectTitle is string && data.projectTitle.size() >= 1 && data.projectTitle.size() <= 200 &&
+             data.status in ['Pending', 'Confirmed', 'Awaiting Requirements', 'In Progress', 'Revision Requested', 'Completed', 'Cancelled'] &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             (!('customerEmail' in data) || data.customerEmail == null || (data.customerEmail is string && data.customerEmail.size() <= 128)) &&
+             (!('packageName' in data) || data.packageName == null || (data.packageName is string && data.packageName.size() <= 50)) &&
+             (!('packagePrice' in data) || data.packagePrice == null || (data.packagePrice is number && data.packagePrice >= 0)) &&
+             (!('projectDescription' in data) || data.projectDescription == null || (data.projectDescription is string && data.projectDescription.size() <= 5000)) &&
+             (!('budgetRange' in data) || data.budgetRange == null || (data.budgetRange is string && data.budgetRange.size() <= 100)) &&
+             (!('deadline' in data) || data.deadline == null || (data.deadline is string && data.deadline.size() <= 100)) &&
+             (!('referenceNotes' in data) || data.referenceNotes == null || (data.referenceNotes is string && data.referenceNotes.size() <= 2000)) &&
+             (!('internalNotes' in data) || data.internalNotes == null || (data.internalNotes is string && data.internalNotes.size() <= 2000)) &&
+             (!('customerUpdates' in data) || data.customerUpdates == null || (data.customerUpdates is string && data.customerUpdates.size() <= 2000)) &&
+             (!('quotationAmount' in data) || data.quotationAmount == null || (data.quotationAmount is number && data.quotationAmount >= 0)) &&
+             (!('updatedAt' in data) || data.updatedAt == null || (data.updatedAt is timestamp && data.updatedAt <= request.time));
+    }
+
+    function isValidQuotation(data) {
+      return data.quotationId is string && data.quotationId.size() >= 1 && data.quotationId.size() <= 128 &&
+             data.customerId is string && data.customerId.size() >= 1 && data.customerId.size() <= 128 &&
+             data.customerName is string && data.customerName.size() >= 1 && data.customerName.size() <= 100 &&
+             data.customerPhone is string && data.customerPhone.size() >= 3 && data.customerPhone.size() <= 50 &&
+             data.serviceType is string && data.serviceType.size() >= 1 && data.serviceType.size() <= 150 &&
+             data.projectDetails is string && data.projectDetails.size() >= 1 && data.projectDetails.size() <= 5000 &&
+             data.status in ['New Request', 'Under Review', 'Quote Prepared', 'Sent to Customer', 'Accepted', 'Rejected', 'Expired'] &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             (!('customerEmail' in data) || data.customerEmail == null || (data.customerEmail is string && data.customerEmail.size() <= 128)) &&
+             (!('budgetRange' in data) || data.budgetRange == null || (data.budgetRange is string && data.budgetRange.size() <= 100)) &&
+             (!('deadline' in data) || data.deadline == null || (data.deadline is string && data.deadline.size() <= 100)) &&
+             (!('proposedPrice' in data) || data.proposedPrice == null || (data.proposedPrice is number && data.proposedPrice >= 0)) &&
+             (!('proposedDeliveryTime' in data) || data.proposedDeliveryTime == null || (data.proposedDeliveryTime is string && data.proposedDeliveryTime.size() <= 100)) &&
+             (!('adminNotes' in data) || data.adminNotes == null || (data.adminNotes is string && data.adminNotes.size() <= 2000)) &&
+             (!('updatedAt' in data) || data.updatedAt == null || (data.updatedAt is timestamp && data.updatedAt <= request.time));
+    }
+
+    function isValidPortfolio(data) {
+      return data.projectId is string && data.projectId.size() >= 1 && data.projectId.size() <= 100 &&
+             data.title is string && data.title.size() >= 1 && data.title.size() <= 150 &&
+             data.category is string && data.category.size() >= 1 && data.category.size() <= 100 &&
+             data.published is bool &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             (!('description' in data) || data.description == null || (data.description is string && data.description.size() <= 2000)) &&
+             (!('clientName' in data) || data.clientName == null || (data.clientName is string && data.clientName.size() <= 100)) &&
+             (!('completedYear' in data) || data.completedYear == null || (data.completedYear is string && data.completedYear.size() <= 20)) &&
+             (!('tag' in data) || data.tag == null || (data.tag is string && data.tag.size() <= 50)) &&
+             (!('isFeatured' in data) || data.isFeatured is bool) &&
+             (!('hasBeforeAfter' in data) || data.hasBeforeAfter is bool) &&
+             (!('beforeText' in data) || data.beforeText == null || (data.beforeText is string && data.beforeText.size() <= 500)) &&
+             (!('afterText' in data) || data.afterText == null || (data.afterText is string && data.afterText.size() <= 500));
+    }
+
+    function isValidSettings(data) {
+      return data.id is string &&
+             data.brandName is string && data.brandName.size() >= 1 && data.brandName.size() <= 100 &&
+             data.whatsAppNumber is string && data.whatsAppNumber.size() >= 5 && data.whatsAppNumber.size() <= 30 &&
+             data.currency is string && data.currency.size() >= 2 && data.currency.size() <= 10 &&
+             (!('tagline' in data) || data.tagline == null || (data.tagline is string && data.tagline.size() <= 200)) &&
+             (!('email' in data) || data.email == null || (data.email is string && data.email.size() <= 128)) &&
+             (!('businessHours' in data) || data.businessHours == null || (data.businessHours is string && data.businessHours.size() <= 100)) &&
+             (!('bannerText' in data) || data.bannerText == null || (data.bannerText is string && data.bannerText.size() <= 300));
+    }
+
+    // Admins registry
+    match /admins/{adminId} {
+      allow read: if isSignedIn();
+      allow write: if false; // Provisioned backend-side
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      allow get: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow list: if isAdmin();
+      allow create: if isSignedIn() &&
+                       (request.auth.uid == userId || isAdmin()) &&
+                       incoming().uid == request.auth.uid &&
+                       isValidUserProfile(incoming());
+      allow update: if isSignedIn() &&
+                       (request.auth.uid == userId || isAdmin()) &&
+                       incoming().uid == existing().uid &&
+                       incoming().createdAt == existing().createdAt &&
+                       isValidUserProfile(incoming()) &&
+                       (isAdmin() || incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'phone', 'updatedAt']));
+      allow delete: if isAdmin();
+    }
+
+    // Services Catalog
+    match /services/{serviceId} {
+      allow get, list: if true;
+      allow create: if isAdmin() && isValidService(incoming());
+      allow update: if isAdmin() && isValidService(incoming()) && incoming().serviceId == existing().serviceId;
+      allow delete: if isAdmin();
+    }
+
+    // Bookings Collection
+    match /bookings/{bookingId} {
+      allow get: if isSignedIn() && (resource.data.customerId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.customerId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() &&
+                       (incoming().customerId == request.auth.uid || isAdmin()) &&
+                       isValidBooking(incoming());
+      allow update: if isSignedIn() &&
+                       isValidBooking(incoming()) &&
+                       incoming().bookingId == existing().bookingId &&
+                       incoming().createdAt == existing().createdAt &&
+                       (
+                         isAdmin() ||
+                         (existing().customerId == request.auth.uid &&
+                          incoming().customerId == existing().customerId &&
+                          incoming().diff(existing()).affectedKeys().hasOnly(['projectDescription', 'referenceNotes', 'updatedAt']))
+                       );
+      allow delete: if isAdmin();
+    }
+
+    // Quotations Collection
+    match /quotations/{quotationId} {
+      allow get: if isSignedIn() && (resource.data.customerId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.customerId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() &&
+                       (incoming().customerId == request.auth.uid || isAdmin()) &&
+                       isValidQuotation(incoming());
+      allow update: if isSignedIn() &&
+                       isValidQuotation(incoming()) &&
+                       incoming().quotationId == existing().quotationId &&
+                       incoming().createdAt == existing().createdAt &&
+                       (
+                         isAdmin() ||
+                         (existing().customerId == request.auth.uid &&
+                          incoming().customerId == existing().customerId &&
+                          incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt']))
+                       );
+      allow delete: if isAdmin();
+    }
+
+    // Portfolio Collection
+    match /portfolio/{projectId} {
+      allow get, list: if resource.data.published == true || isAdmin();
+      allow create: if isAdmin() && isValidPortfolio(incoming());
+      allow update: if isAdmin() && isValidPortfolio(incoming()) && incoming().projectId == existing().projectId;
+      allow delete: if isAdmin();
+    }
+
+    // Agency Settings
+    match /agencySettings/{settingId} {
+      allow get, list: if true;
+      allow create, update: if isAdmin() && isValidSettings(incoming());
+      allow delete: if false;
+    }
+  }
+}

@@ -1,0 +1,163 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User account information and profile details",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "User identifier matching auth.uid" },
+        "displayName": { "type": "string", "description": "Full name of the user" },
+        "email": { "type": "string", "description": "Email address" },
+        "phone": { "type": "string", "description": "WhatsApp or mobile number" },
+        "role": { "type": "string", "enum": ["customer", "admin"], "description": "User role" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Account creation timestamp" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Last update timestamp" }
+      },
+      "required": ["uid", "displayName", "email", "role", "createdAt"]
+    },
+    "ServiceItem": {
+      "title": "ServiceItem",
+      "description": "Creative digital service catalog item",
+      "type": "object",
+      "properties": {
+        "serviceId": { "type": "string", "description": "Unique service key" },
+        "title": { "type": "string", "description": "Service title" },
+        "slug": { "type": "string", "description": "URL slug" },
+        "description": { "type": "string", "description": "Full description of service" },
+        "category": { "type": "string", "description": "Creative category" },
+        "startingPrice": { "type": "number", "description": "Starting price in PKR" },
+        "deliveryTime": { "type": "string", "description": "Estimated delivery timeframe" },
+        "iconName": { "type": "string", "description": "Icon identifier" },
+        "isFeatured": { "type": "boolean", "description": "Highlighted on homepage" },
+        "isActive": { "type": "boolean", "description": "Whether service is available" },
+        "packages": { "type": "object", "description": "Package tier configurations" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Update timestamp" }
+      },
+      "required": ["serviceId", "title", "category", "startingPrice", "isActive"]
+    },
+    "Booking": {
+      "title": "Booking",
+      "description": "Client service booking order record",
+      "type": "object",
+      "properties": {
+        "bookingId": { "type": "string", "description": "Unique booking document ID" },
+        "bookingReference": { "type": "string", "description": "Human-readable reference code like HK-2026-XXXX" },
+        "customerId": { "type": "string", "description": "UID of the client" },
+        "customerName": { "type": "string", "description": "Client full name" },
+        "customerEmail": { "type": "string", "description": "Client contact email" },
+        "customerPhone": { "type": "string", "description": "Client WhatsApp contact phone" },
+        "serviceId": { "type": "string", "description": "Selected service ID" },
+        "serviceTitle": { "type": "string", "description": "Title of selected service" },
+        "packageName": { "type": "string", "description": "Tier name: Basic, Standard, Premium" },
+        "packagePrice": { "type": "number", "description": "Price in PKR" },
+        "projectTitle": { "type": "string", "description": "Project title" },
+        "projectDescription": { "type": "string", "description": "Project brief and requirements" },
+        "budgetRange": { "type": "string", "description": "Expected budget range" },
+        "deadline": { "type": "string", "description": "Requested completion deadline" },
+        "referenceNotes": { "type": "string", "description": "Reference URLs or asset instructions" },
+        "status": {
+          "type": "string",
+          "enum": ["Pending", "Confirmed", "Awaiting Requirements", "In Progress", "Revision Requested", "Completed", "Cancelled"],
+          "description": "Lifecycle state of the project"
+        },
+        "internalNotes": { "type": "string", "description": "Admin internal notes" },
+        "customerUpdates": { "type": "string", "description": "Milestone notes visible to client" },
+        "quotationAmount": { "type": "number", "description": "Adjusted quotation amount if customized" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Last update timestamp" }
+      },
+      "required": ["bookingId", "bookingReference", "customerId", "customerName", "customerPhone", "serviceId", "serviceTitle", "projectTitle", "status", "createdAt"]
+    },
+    "Quotation": {
+      "title": "Quotation",
+      "description": "Custom project quotation request and offer",
+      "type": "object",
+      "properties": {
+        "quotationId": { "type": "string", "description": "Unique quotation ID" },
+        "customerId": { "type": "string", "description": "UID of the client" },
+        "customerName": { "type": "string", "description": "Name of requesting client" },
+        "customerEmail": { "type": "string", "description": "Client email" },
+        "customerPhone": { "type": "string", "description": "Client WhatsApp phone" },
+        "serviceType": { "type": "string", "description": "Required service category or custom requirement" },
+        "projectDetails": { "type": "string", "description": "Detailed project brief" },
+        "budgetRange": { "type": "string", "description": "Client estimated budget" },
+        "deadline": { "type": "string", "description": "Target completion date" },
+        "proposedPrice": { "type": "number", "description": "Admin proposed price in PKR" },
+        "proposedDeliveryTime": { "type": "string", "description": "Admin delivery turnaround estimate" },
+        "status": {
+          "type": "string",
+          "enum": ["New Request", "Under Review", "Quote Prepared", "Sent to Customer", "Accepted", "Rejected", "Expired"],
+          "description": "Quotation status"
+        },
+        "adminNotes": { "type": "string", "description": "Admin remarks" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Last updated timestamp" }
+      },
+      "required": ["quotationId", "customerId", "customerName", "customerPhone", "serviceType", "projectDetails", "status", "createdAt"]
+    },
+    "PortfolioProject": {
+      "title": "PortfolioProject",
+      "description": "Agency portfolio showcase item",
+      "type": "object",
+      "properties": {
+        "projectId": { "type": "string", "description": "Unique portfolio ID" },
+        "title": { "type": "string", "description": "Project title" },
+        "description": { "type": "string", "description": "Summary of creative work" },
+        "category": { "type": "string", "description": "Creative domain" },
+        "clientName": { "type": "string", "description": "Client or brand showcase name" },
+        "completedYear": { "type": "string", "description": "Year of completion" },
+        "tag": { "type": "string", "description": "Project badge tag" },
+        "isFeatured": { "type": "boolean", "description": "Show on featured carousel" },
+        "published": { "type": "boolean", "description": "Public visibility" },
+        "hasBeforeAfter": { "type": "boolean", "description": "Whether project includes before/after comparison" },
+        "beforeText": { "type": "string", "description": "Initial design problem or draft note" },
+        "afterText": { "type": "string", "description": "Final delivered solution note" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" }
+      },
+      "required": ["projectId", "title", "category", "published", "createdAt"]
+    },
+    "AgencySettings": {
+      "title": "AgencySettings",
+      "description": "Agency branding, WhatsApp contact, and configuration",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Document ID, default 'general'" },
+        "brandName": { "type": "string", "description": "Agency brand name" },
+        "tagline": { "type": "string", "description": "Hero tagline" },
+        "whatsAppNumber": { "type": "string", "description": "Primary WhatsApp contact number" },
+        "email": { "type": "string", "description": "Contact email" },
+        "businessHours": { "type": "string", "description": "Operational hours" },
+        "currency": { "type": "string", "description": "Default currency code" },
+        "bannerText": { "type": "string", "description": "Announcement banner text" }
+      },
+      "required": ["id", "brandName", "whatsAppNumber", "currency"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "User profiles and credentials"
+    },
+    "/services/{serviceId}": {
+      "schema": { "$ref": "#/entities/ServiceItem" },
+      "description": "Creative agency services and package offerings"
+    },
+    "/bookings/{bookingId}": {
+      "schema": { "$ref": "#/entities/Booking" },
+      "description": "Client project bookings and orders"
+    },
+    "/quotations/{quotationId}": {
+      "schema": { "$ref": "#/entities/Quotation" },
+      "description": "Custom project quotation requests"
+    },
+    "/portfolio/{projectId}": {
+      "schema": { "$ref": "#/entities/PortfolioProject" },
+      "description": "Portfolio work showcase and case studies"
+    },
+    "/agencySettings/{settingId}": {
+      "schema": { "$ref": "#/entities/AgencySettings" },
+      "description": "Global agency branding and WhatsApp settings"
+    }
+  }
+}
